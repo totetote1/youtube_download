@@ -1,46 +1,48 @@
-import yt_dlp
+import subprocess
+import os
 
-def download_youtube_video():
-    # URLを入力（ここでは " " で囲む必要はありません！）
-    url = input("YouTubeのURLを入力してください: ")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PYTHON_BIN = os.path.join(SCRIPT_DIR, 'venv', 'bin', 'python3')
 
-    # コマンド版で成功した「暗号解読設定」をすべて反映
-    ydl_opts = {
-        # 1. 画質設定：見つかる中でベストな動画を選択
-        'format': 'best',
-        
-        # 2. プレイリスト対策：URLにリストIDが含まれていても1本だけ落とす
-        'noplaylist': True,
-        
-        # 3. 人間証明：Chromeのクッキーを使用（Chromeは終了させておいてください）
-        'cookiesfrombrowser': ('chrome',),
-        
-        # 4. 保存名：動画タイトル.拡張子
-        'outtmpl': '%(title)s.%(ext)s',
-        
-        # 5. 【最重要】コマンド版で成功した「解読スクリプト許可」の設定
-        'extractor_args': {
-            'youtube': {
-                'remote_components': ['ejs:github'],
-            }
-        },
-        
-        # 6. エラーが出ても途中で止めず、詳細を報告する
-        'ignoreerrors': False,
-        'quiet': False,
-        'no_warnings': False,
-    }
+def download_youtube_video(url):
+    cmd = [
+        PYTHON_BIN,
+        '-m', 'yt_dlp',
+        '--remote-components', 'ejs:github',
+        '--cookies-from-browser', 'chrome',
+        '--no-playlist',
+        '--extractor-args', 'youtube:player_client=tv_embedded,android,web',
+        '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best',
+        '--merge-output-format', 'mp4',
+        '-o', os.path.expanduser('~/Downloads/%(title)s.%(ext)s'),
+        url
+    ]
 
     try:
         print("\n--- ダウンロード処理を開始します ---")
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # 内部的に deno（インストール済み）を使ってパズルを解き始めます
-            ydl.download([url])
-        print("\n✅ 完了しました！フォルダ内を確認してください。")
-        
+        result = subprocess.run(cmd)
+        if result.returncode == 0:
+            print("\n✅ 完了しました！ダウンロードフォルダを確認してください。")
+        else:
+            print("\n❌ ダウンロードに失敗しました。")
+            print("ヒント: Chromeを完全に終了(Cmd+Q)してから再試行してみてください。")
+
     except Exception as e:
         print(f"\n❌ エラーが発生しました: {e}")
-        print("ヒント: Chromeを完全に終了(Cmd+Q)してから再試行してみてください。")
 
 if __name__ == "__main__":
-    download_youtube_video()
+    print("====================================")
+    print("  YouTube 動画ダウンローダー")
+    print("  終了するには Ctrl+C を押してください")
+    print("====================================")
+    while True:
+        try:
+            print("")
+            url = input("YouTubeのURLを貼り付けてEnter: ").strip()
+            if url:
+                download_youtube_video(url)
+            else:
+                print("URLが入力されていません。もう一度入力してください。")
+        except KeyboardInterrupt:
+            print("\n\n終了します。お疲れ様でした！")
+            break

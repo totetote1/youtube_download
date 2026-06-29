@@ -1,84 +1,126 @@
 # YouTube動画ダウンローダー
 
-Mac環境でYouTube動画を安全かつ確実にダウンロードするためのPythonスクリプトです。
-YouTubeの最新のボット対策（JavaScriptパズル）を回避するために、`yt-dlp` と `Deno` を組み合わせて動作します。
+MacでYouTube動画をダウンロードするための小さなGUIアプリです。
 
-## 🛠 必須要件
+URLを貼り付けて保存先を選ぶだけで、`yt-dlp` を使って動画を保存します。既存のコマンドライン版も残しています。
 
-実行には以下のツールが必要です。
+## できること
 
-- **Python 3.10+**
-- **Homebrew** (Mac用パッケージマネージャ)
-- **Deno** (YouTubeの暗号解読エンジンとして使用)
-- **Google Chrome** (認証クッキーの取得用)
+- YouTube URLから動画をダウンロード
+- 保存先フォルダの選択
+- ダウンロードログの表示
+- 実行中の停止
+- ChromeのCookieを使った認証付きダウンロード
 
-## 🚀 セットアップ手順
+## 必要なもの
 
-### 1. 外部依存ツールのインストール
-YouTubeの暗号（Signature/n-challenge）を解くために `deno` をインストールします。
+- macOS
+- Python 3.10以上
+- Deno
+- Google Chrome
+
+`yt-dlp` はプロジェクト内の `venv` にインストールして使います。
+
+## セットアップ
+
+初回だけ以下を実行します。
+
+```bash
+cd ~/Desktop/codex/web/youtube_download
+python3 -m venv venv
+venv/bin/pip install -U yt-dlp
+brew install deno
+```
+
+すでにこのフォルダで使えている場合は、セットアップ済みです。
+
+## GUI版の起動方法
+
+Finderで以下のファイルをダブルクリックします。
+
+```text
+YouTube動画ダウンロード_GUI.command
+```
+
+Terminalから起動する場合:
+
+```bash
+cd ~/Desktop/codex/web/youtube_download
+./YouTube動画ダウンロード_GUI.command
+```
+
+起動したら、YouTube URLを入力し、保存先を選んで「ダウンロード開始」を押してください。
+
+## CLI版の起動方法
+
+従来のターミナル版を使う場合は、以下をダブルクリックします。
+
+```text
+YouTube動画ダウンロード.command
+```
+
+またはTerminalから実行します。
+
+```bash
+cd ~/Desktop/codex/web/youtube_download
+./YouTube動画ダウンロード.command
+```
+
+## Chrome Cookieについて
+
+このアプリは `--cookies-from-browser chrome` を使います。
+
+エラーが出る場合は、Google Chromeを `Cmd+Q` で完全終了してから再試行してください。macOSのキーチェーン確認が出た場合は、許可してください。
+
+## 保存先
+
+GUI版では保存先を選択できます。
+
+CLI版では初期設定で `~/Downloads` に保存します。
+
+## トラブルシューティング
+
+### yt-dlpが見つからない
+
+以下を実行してください。
+
+```bash
+cd ~/Desktop/codex/web/youtube_download
+venv/bin/pip install -U yt-dlp
+```
+
+### denoが見つからない
+
+以下を実行してください。
 
 ```bash
 brew install deno
-
 ```
 
-### 2. プロジェクトの準備
+### ダウンロードに失敗する
 
-リポジトリをクローンまたはフォルダに移動した後、仮想環境を作成しライブラリをインストールします。
+以下を試してください。
+
+- Chromeを `Cmd+Q` で完全終了する
+- `yt-dlp` を更新する
+- URLを貼り直す
+- 保存先に書き込み権限があるか確認する
 
 ```bash
-# フォルダへ移動
-cd youtube_download
-
-# 仮想環境の作成と有効化
-python3 -m venv venv
-source venv/bin/activate
-
-# yt-dlpのインストール
-pip install -U yt-dlp
-
+cd ~/Desktop/codex/web/youtube_download
+venv/bin/pip install -U yt-dlp
 ```
 
-## 📂 構成ファイル
+## ファイル構成
 
-* `youtube.py`: メインの実行スクリプト
-* `venv/`: Python仮想環境（`.gitignore` で除外推奨）
-* `README.md`: このファイル
-
-## 📝 使い方
-
-1. **Google Chromeを完全に終了**させます（クッキー読み取りエラー防止）。
-2. ターミナルで仮想環境を有効化します。
-```bash
-source venv/bin/activate
-
+```text
+youtube_gui.py                         GUI版アプリ本体
+YouTube動画ダウンロード_GUI.command     GUI版の起動ファイル
+youtube.py                             CLI版アプリ本体
+YouTube動画ダウンロード.command         CLI版の起動ファイル
+README.md                              この説明書
 ```
 
+## 注意
 
-3. スクリプトを実行します。
-```bash
-python youtube.py
-
-```
-
-
-4. プロンプトが表示されたら、YouTubeの動画URLを貼り付けて `Enter` を押してください。
-
-## 💡 トラブルシューティング
-
-### 「Requested format is not available」が出る場合
-
-YouTubeの制限が更新されています。以下のコマンドでライブラリを最新に更新してください。
-
-```bash
-pip install -U yt-dlp
-
-```
-
-### Macのキーチェーンアクセスを求められる場合
-
-スクリプトがChromeのクッキーを読み取る際、Macのシステムパスワードを求められることがあります。「常に許可」を選択してください。
-
-### プレイリストのURLを貼った場合
-
-本スクリプトは `'noplaylist': True` 設定になっているため、プレイリストのURLを貼り付けても、その中の1動画のみをダウンロードします。
+ダウンロード対象の動画は、利用規約と著作権を守って扱ってください。
