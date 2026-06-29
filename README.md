@@ -1,6 +1,4 @@
-
-```markdown
-# YouTube Downloader (yt-dlp wrapper)
+# YouTube動画ダウンローダー
 
 Mac環境でYouTube動画を安全かつ確実にダウンロードするためのPythonスクリプトです。
 YouTubeの最新のボット対策（JavaScriptパズル）を回避するために、`yt-dlp` と `Deno` を組み合わせて動作します。
@@ -84,5 +82,3 @@ pip install -U yt-dlp
 ### プレイリストのURLを貼った場合
 
 本スクリプトは `'noplaylist': True` 設定になっているため、プレイリストのURLを貼り付けても、その中の1動画のみをダウンロードします。
-
-
